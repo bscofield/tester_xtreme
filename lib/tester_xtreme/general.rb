@@ -5,7 +5,9 @@ module Viget
 
       private
       def klass
-        self.name.sub(/Test$/, '').constantize
+        klass_name = self.name.sub(/Test$/, '')
+        klass_name = klass_name.sub(/.+::/, '')
+        klass_name.constantize
       end
 
       def add_test(name, &block)
