@@ -57,6 +57,19 @@ module Viget
 
         self
       end
+      
+      def and_use_filter(filter_name)
+        method, action, *extra = extract_from_controller_options
+        prehook = extra.shift
+        add_test "#{method.to_s.upcase} #{action} should hit #{filter_name} filter" do |myself|
+          klass.any_instance.expects(filter_name)
+          myself.instance_eval do
+            prehook.call(self) if prehook
+            send(method, action, *extra)
+            assert_response :success, "#{method.to_s.upcase} #{action} failed"
+          end
+        end
+      end
 
       def and_render(template = nil)
         method, action, *extra = extract_from_controller_options
