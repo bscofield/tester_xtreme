@@ -5,17 +5,18 @@ module Viget
 
       %w(get post put delete).each do |method|
         class_eval %{
-          def should_#{method}(action, options = {}, session = {})
-            @controller_options = {:method => :#{method}, :action => action, :options => options, :session => session}
+          def should_#{method}(action, options = {}, session = {}, &block)
+            @controller_options = {:method => :#{method}, :action => action, :options => options, :session => session, :prehook => block}
             self
           end
         }
       end
 
       def and_assign(variable, value = nil, &block)
-        method, action, options, session = extract_from_controller_options
+        method, action, options, session, prehook = extract_from_controller_options
         add_test "#{variable} should be assigned" do |myself|
           myself.instance_eval do
+            prehook.call if prehook
             send(method, action, options, session)
             assert assigns(variable), "#{variable} was not assigned"
           end
@@ -23,6 +24,7 @@ module Viget
 
         add_test "#{variable} should match expected" do |myself|
           myself.instance_eval do
+            prehook.call if prehook
             send(method, action, options, session)
             if block_given?
               assert block.call(assigns(variable)), "#{variable} does not have expected value"
@@ -42,9 +44,10 @@ module Viget
       end
 
       def and_not_assign(variable)
-        method, action, options, session = extract_from_controller_options
+        method, action, options, session, prehook = extract_from_controller_options
         add_test "#{variable} should not be assigned" do |myself|
           myself.instance_eval do
+            prehook.call if prehook
             send(method, action, options, session)
             assert assigns(variable).nil?, "#{variable} was assigned"
           end
@@ -54,10 +57,11 @@ module Viget
       end
 
       def and_render(template = nil)
-        method, action, options, session = extract_from_controller_options
+        method, action, options, session, prehook = extract_from_controller_options
         template ||= action
         add_test "#{method.to_s.upcase} #{action} should succeed" do |myself|
           myself.instance_eval do
+            prehook.call if prehook
             send(method, action, options, session)
             assert_response :success, "#{method.to_s.upcase} #{action} failed"
           end
@@ -65,6 +69,7 @@ module Viget
 
         add_test "#{template} should be rendered" do |myself|
           myself.instance_eval do
+            prehook.call if prehook
             send(method, action, options, session)
             assert_template template.to_s, "#{template} was not rendered"
           end
@@ -74,9 +79,10 @@ module Viget
       end
 
       def and_set_flash(key, value = nil, &block)
-        method, action, options, session = extract_from_controller_options
+        method, action, options, session, prehook = extract_from_controller_options
         add_test "flash for #{key} should be assigned" do |myself|
           myself.instance_eval do
+            prehook.call if prehook
             send(method, action, options, session)
             assert flash[key], "#{key} was not assigned in flash"
           end
@@ -84,6 +90,7 @@ module Viget
 
         add_test "flash #{key} should match expected" do |myself|
           myself.instance_eval do
+            prehook.call if prehook
             send(method, action, options, session)
             if block_given?
               assert block.call(flash[key]), "#{key} in flash does not have expected value"
@@ -101,9 +108,10 @@ module Viget
       end
 
       def and_redirect_to(target)
-        method, action, options, session = extract_from_controller_options
+        method, action, options, session, prehook = extract_from_controller_options
         add_test "#{method.to_s.upcase} #{action} should redirect" do |myself|
           myself.instance_eval do
+            prehook.call if prehook
             send(method, action, options, session)
             assert_response :redirect, "#{method.to_s.upcase} #{action} did not redirect"
           end
@@ -111,6 +119,7 @@ module Viget
 
         add_test "#{method.to_s.upcase} #{action} should redirect to expected target" do |myself|
           myself.instance_eval do
+            prehook.call if prehook
             send(method, action, options, session)
             assert_redirected_to target
           end
@@ -125,12 +134,13 @@ module Viget
 
       private
       def extract_from_controller_options()
-        method = controller_options[:method]
-        action = controller_options[:action]
+        method  = controller_options[:method]
+        action  = controller_options[:action]
         options = controller_options[:options]
         session = controller_options[:session]
-
-        return method, action, options, session
+        block   = controller_options[:prehook]
+        
+        return method, action, options, session, block
       end
     end
   end
