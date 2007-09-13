@@ -68,6 +68,8 @@ module Viget
             send(method, action, *extra)
           end
         end
+        
+        self
       end
 
       def and_render(template = nil)
@@ -123,6 +125,36 @@ module Viget
         self
       end
 
+      def and_set_session(key, value = nil, &block)
+        method, action, *extra = extract_from_controller_options
+        prehook = extra.shift
+        add_test "session #{key} should be assigned in #{method} #{action}" do |myself|
+          myself.instance_eval do
+            prehook.call(self) if prehook
+            send(method, action, *extra)
+            assert session[key], "#{key} was not assigned in session"
+          end
+        end
+
+        add_test "session #{key} should match expected in #{method} #{action}" do |myself|
+          myself.instance_eval do
+            prehook.call(self) if prehook
+            send(method, action, *extra)
+            if block_given?
+              assert block.call(session[key]), "#{key} in session does not have expected value"
+            elsif !value.nil?
+              if value.is_a?(Regexp)
+                assert_match value, session[key]
+              else
+                assert_equal value, session[key]
+              end
+            end
+          end
+        end if !value.nil? || block_given?
+
+        self
+      end
+
       def and_redirect_to(target)
         method, action, *extra = extract_from_controller_options
         prehook = extra.shift
@@ -143,10 +175,6 @@ module Viget
         end
 
         self
-      end
-
-      def should_use_filter
-        # not yet implemented
       end
 
       private
