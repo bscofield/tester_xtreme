@@ -16,7 +16,7 @@ module Viget
         method, action, options, session, prehook = extract_from_controller_options
         add_test "#{variable} should be assigned" do |myself|
           myself.instance_eval do
-            prehook.call if prehook
+            prehook.call(self)if prehook
             send(method, action, options, session)
             assert assigns(variable), "#{variable} was not assigned"
           end
@@ -24,7 +24,7 @@ module Viget
 
         add_test "#{variable} should match expected" do |myself|
           myself.instance_eval do
-            prehook.call if prehook
+            prehook.call(self) if prehook
             send(method, action, options, session)
             if block_given?
               assert block.call(assigns(variable)), "#{variable} does not have expected value"
@@ -47,7 +47,7 @@ module Viget
         method, action, options, session, prehook = extract_from_controller_options
         add_test "#{variable} should not be assigned" do |myself|
           myself.instance_eval do
-            prehook.call if prehook
+            prehook.call(self) if prehook
             send(method, action, options, session)
             assert assigns(variable).nil?, "#{variable} was assigned"
           end
@@ -61,7 +61,7 @@ module Viget
         template ||= action
         add_test "#{method.to_s.upcase} #{action} should succeed" do |myself|
           myself.instance_eval do
-            prehook.call if prehook
+            prehook.call(self) if prehook
             send(method, action, options, session)
             assert_response :success, "#{method.to_s.upcase} #{action} failed"
           end
@@ -69,7 +69,7 @@ module Viget
 
         add_test "#{template} should be rendered" do |myself|
           myself.instance_eval do
-            prehook.call if prehook
+            prehook.call(self) if prehook
             send(method, action, options, session)
             assert_template template.to_s, "#{template} was not rendered"
           end
@@ -82,7 +82,7 @@ module Viget
         method, action, options, session, prehook = extract_from_controller_options
         add_test "flash for #{key} should be assigned" do |myself|
           myself.instance_eval do
-            prehook.call if prehook
+            prehook.call(self)if prehook
             send(method, action, options, session)
             assert flash[key], "#{key} was not assigned in flash"
           end
@@ -90,7 +90,7 @@ module Viget
 
         add_test "flash #{key} should match expected" do |myself|
           myself.instance_eval do
-            prehook.call if prehook
+            prehook.call(self)if prehook
             send(method, action, options, session)
             if block_given?
               assert block.call(flash[key]), "#{key} in flash does not have expected value"
@@ -111,7 +111,7 @@ module Viget
         method, action, options, session, prehook = extract_from_controller_options
         add_test "#{method.to_s.upcase} #{action} should redirect" do |myself|
           myself.instance_eval do
-            prehook.call if prehook
+            prehook.call(self)if prehook
             send(method, action, options, session)
             assert_response :redirect, "#{method.to_s.upcase} #{action} did not redirect"
           end
@@ -119,7 +119,7 @@ module Viget
 
         add_test "#{method.to_s.upcase} #{action} should redirect to expected target" do |myself|
           myself.instance_eval do
-            prehook.call if prehook
+            prehook.call(self)if prehook
             send(method, action, options, session)
             assert_redirected_to target
           end
