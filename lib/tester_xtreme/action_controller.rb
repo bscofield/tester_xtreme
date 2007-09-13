@@ -66,7 +66,6 @@ module Viget
           myself.instance_eval do
             prehook.call(self) if prehook
             send(method, action, *extra)
-            assert_response :success, "#{method.to_s.upcase} #{action} failed"
           end
         end
       end
