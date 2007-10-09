@@ -6,12 +6,10 @@ module Viget
 
         %w(get post put delete).each do |method|
           class_eval %{
-            def #{method}(action, params = {}, session = {}, &block)
+            def #{method}(action, &block)
               @options = {
                 :method  => :#{method}, 
-                :action  => action, 
-                :params  => params,
-                :session => session
+                :action  => action
               }
               block.call if block_given?
               
