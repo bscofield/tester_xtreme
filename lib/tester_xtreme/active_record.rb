@@ -43,7 +43,7 @@ module Viget
           attributes.each do |attr|
             add_test "#{attr} should not accept a non_unique value" do |myself|
               obj = klass.new
-              klass.expects(:find).returns(obj)
+              klass.expects(:find).at_least_once.returns(obj)
               object.send("#{attr}=", 'a')
               myself.assert !object.valid?, "Assigning a non-unique value to #{attr} does not invalidate the object"
               myself.assert object.errors.on(attr), "#{attr} accepts a non-unique value"
