@@ -69,6 +69,16 @@ module Viget
           self
         end
 
+        def should_not_use_filter(filter_name)
+          add_controller_test "[method] [action] should not hit #{filter_name} filter" do |myself|
+            klass.any_instance.expects(filter_name).never
+            myself.instance_eval do
+              myself.send(@method, @action, @params, @session)
+            end
+          end
+          self
+        end
+
         def should_render(template = nil)
           add_controller_test "[method] [action] should succeed" do |myself|
             myself.instance_eval do
