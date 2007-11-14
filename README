@@ -1,13 +1,75 @@
-TesterXtreme
-============
+= TesterXtreme
 
-Introduction goes here.
+The Tester Xtreme plugin is a way to distill common testing patterns into easy-to-use macros that
+are added as class methods to your test cases.  There are currently macros for both unit (ActiveRecord 
+model) and functional (ActionController controllers) tests.
 
+== Unit Test Macros
 
-Example
-=======
+=== Validation Tests
 
-Example goes here.
+Each of the validation testing macros checks to make sure there is an appropriate validation method 
+defined in the model for each attribute specified.
 
+*should_require*
+
+Ensures that +validates_presence_of+ was used.
+
+*should_require_numeric*
+
+Ensures that +validates_numericality_of+ was used.
+
+*should_require_unique*
+
+Ensures that +validates_uniqueness_of+ was used.
+
+*should_protect*
+
+Ensures that +attr_protected+ was used for this attribute.
+
+*Usage*:
+
+  class UserTest < ActiveSupport::TestCase
+    should_require :first_name, :last_name
+    should_require_unique :username
+    should_require_numeric :friends_count
+    should_protect :hashed_password
+  end
+
+=== Association Tests
+
+Each of the association testing macros checks to make sure the correct associations were defined on 
+this model.  The names map directly to the association definitions:
+
+*should_have_many*
+
+Ensures that +has_many+ was used.
+
+*should_belong_to*
+
+Ensures that +belongs_to+ was used.
+
+*should_have_one*
+
+Ensures that +has_one+ was used.
+
+*should_have_and_belong_to_many*
+
+Ensures that +has_and_belongs_to_many+ was used.
+
+*Usage*:
+
+  class UserTest < ActiveSupport::TestCase
+    should_have_many :friends
+    should_belong_to :organization
+    should_have_one :credit_card
+    should_have_and_belong_to_many :categories
+  end
+
+== Functional Test Macros
+
+TODO
+
+= Credits
 
 Copyright (c) 2007 Ben Scofield, released under the MIT license
