@@ -149,8 +149,14 @@ module Viget
           end
 
           add_controller_test "[method] [action] should redirect to expected target" do |myself|
-            myself.instance_eval do
-              assert_redirected_to target
+            if target.is_a?(Symbol)
+              myself.instance_eval do
+                assert_redirected_to target
+              end
+            else
+              myself.instance_eval do
+                assert_redirected_to eval(target)
+              end
             end
           end
           self
