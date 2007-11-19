@@ -68,7 +68,62 @@ Ensures that +has_and_belongs_to_many+ was used.
 
 == Functional Test Macros
 
-TODO
+Each of the functional testing macros require that you first request an action on the controller.  To
+accomplish this, the 4 standard actions are implemented as class methods for the test:
+
+* get
+* post
+* put
+* delete
+
+In addition to simple requests, you can also specify parameters and initial states:
+
+  get(:show){ User.expects(:find).returns(mocked_user) }.with(:id => 1)
+  post(:create).with(:username => 'foobar')
+
+From here, you can use the macros to define certain expectations on the controller:
+
+*should_assign*
+
+Asserts that the specified variable is set as an instance variable.
+
+*should_not_assign*
+
+Asserts that the specified variable is *not* set as an instance variable.
+
+*should_use_filter*
+
+Asserts that the designated filter method is run.
+
+*should_not_use_filter*
+
+Asserts that the designated filter method is *not* run.
+
+*should_render*
+
+Asserts that the response for the action is successful and that the specified template is rendered.
+
+*should_set_flash*
+
+Asserts that the specified key and value was set in the flash collection.
+
+*should_set_session*
+
+Asserts that the specified variable was set in session.
+
+*should_redirect_to*
+
+Asserts that the response was a redirect and that the action redirects to the specified route.
+
+*Usage*:
+
+  class UsersController < ActionController::TestCase
+    get(:new).should_render(:new)
+    post(:create).with(:username => 'foo').should_redirect_to(:new_user_url)
+    delete(:destroy).should_set_flash(:notice, 'You must log in')
+    get(:show).with(:id => 1).should_use_filter(:check_for_current_user)
+    get(:show).with({:id => 1}, {:user_id => 3}).should_assign(:current_user)
+  end
 
 = Credits
 
