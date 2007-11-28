@@ -61,9 +61,11 @@ module Viget
 
         def should_use_filter(filter_name)
           add_controller_test "[method] [action] should hit #{filter_name} filter" do |myself|
-            klass.any_instance.expects(filter_name)
+            klass.any_instance.expects(filter_name).raises(StandardError)
             myself.instance_eval do
-              myself.send(@method, @action, @params, @session)
+              assert_raises(StandardError) do
+                myself.send(@method, @action, @params, @session)
+              end
             end
           end
           self
