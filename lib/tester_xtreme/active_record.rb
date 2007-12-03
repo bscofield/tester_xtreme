@@ -55,7 +55,7 @@ module Viget
           attributes.each do |attr|
             add_test "#{attr} should be protected" do |myself|
               myself.assert klass.protected_attributes, "#{attr} is not protected"
-              myself.assert klass.protected_attributes.include?(attr), "#{attr} is not protected"
+              myself.assert klass.protected_attributes.include?(attr.to_s), "#{attr} is not protected"
             end
           end
         end
