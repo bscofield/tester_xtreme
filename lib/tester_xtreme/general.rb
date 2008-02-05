@@ -7,7 +7,6 @@ module Viget
         private
         def klass
           klass_name = self.name.sub(/Test$/, '')
-          klass_name = klass_name.sub(/.+::/, '')
           klass_name.constantize
         end
 
